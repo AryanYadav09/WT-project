@@ -7,60 +7,152 @@
     <title>Document</title>
     <script src="https://kit.fontawesome.com/591eb9fec1.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style3.css">
+    <style>
+        /* Style for error messages */
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 5px;
+        }
+
+        /* Red border for invalid input fields */
+        .input-field.invalid input {
+            border: 2px solid red;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <div class="form-box">
             <h1 id="title">Create Your Account</h1>
-            <form>
+            <form id="signupForm">
                 <div class="input-group">
                     <div class="input-field" id="nameField">
                         <i class="fa-solid fa-user"></i>
-                        <input type="text" placeholder="Name">
+                        <input type="text" id="name" placeholder="Name">
+                        <span class="error-message" id="nameError">Name is required.</span>
                     </div>
 
                     <div class="input-field" id="emailField">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="text" placeholder="Email">
+                        <input type="email" id="email" placeholder="Email">
+                        <span class="error-message" id="emailError">Please enter a valid email.</span>
                     </div>
 
                     <div class="input-field" id="passField">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="text" placeholder="Password">
+                        <input type="password" id="password" placeholder="Password">
+                        <span class="error-message" id="passwordError">Password must be at least 6 characters long.</span>
                     </div>
-                    <p id="para">Forget Password <a href="#">Click Here!</a></p>
+                    <p id="para">Forgot Password? <a href="#">Click Here!</a></p>
                 </div>
                 <div class="btn-field">
-                    <button type="button" id="signupbtn">Log In </button>
-                    <button type="button" id="signinbtn" class="disable12" >Sign In </button>
+                    <button type="button" id="signupbtn">Sign Up</button>
+                    <button type="button" id="signinbtn">Log In</button>
                 </div>
             </form>
         </div>
-
     </div>
-    <script>
-        let signupbtn = document.getElementById("signupbtn");
-        let signinbtn = document.getElementById("signinbtn");
-        let para = document.getElementById("para");
-        let nameField = document.getElementById("nameField");
-        let title = document.getElementById("title");
 
-        signinbtn.onclick = function(){
-            nameField.style.maxHeight = "0";
-            title.innerHTML = "Welcome Back";
-            para.style.display = "block";
-            signupbtn.classList.add("disable12")
-            signinbtn.classList.remove("disable12");
-        }
-        signupbtn.onclick = function(){
+    <script>
+        const signupbtn = document.getElementById("signupbtn");
+        const signinbtn = document.getElementById("signinbtn");
+        const para = document.getElementById("para");
+        const nameField = document.getElementById("nameField");
+        const title = document.getElementById("title");
+
+        let isLoginState = false;  // Tracks if the form is in Login or Sign Up state
+        let firstLoginClick = true;  // Tracks the first click on the Log In button
+
+        signinbtn.onclick = function () {
+            clearValidation(); // Clear errors before switching states
+            if (firstLoginClick) {
+                // On first click, switch to Login state
+                nameField.style.maxHeight = "0";
+                title.innerHTML = "Welcome Back";
+                para.style.display = "block";
+                signupbtn.classList.add("disable12");
+                signinbtn.classList.remove("disable12");
+
+                // Set flags for Login state and second click handling
+                isLoginState = true;
+                firstLoginClick = false;
+            } else {
+                // On second click, validate form if in Login state
+                if (isLoginState) {
+                    validateForm();
+                }
+            }
+        };
+
+        signupbtn.onclick = function () {
+            clearValidation(); // Clear errors before switching states
+            // Reset form to Sign Up state and show all fields
             nameField.style.maxHeight = "60px";
             title.innerHTML = "Create Your Account";
             para.style.display = "none";
             signupbtn.classList.remove("disable12");
             signinbtn.classList.add("disable12");
+
+            // Set flags to reset clicks
+            isLoginState = false;
+            firstLoginClick = true;
+
+            // Validate form for Sign Up
+            validateForm();
+        };
+
+        function validateForm() {
+            // Clear any previous validation styles and messages
+            clearValidation();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            let isValid = true;
+
+            // Name validation (only for Sign Up state)
+            if (!isLoginState && name === "") {
+                document.getElementById("nameError").style.display = "block";
+                document.getElementById("nameField").classList.add("invalid");
+                isValid = false;
+            }
+
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById("emailError").style.display = "block";
+                document.getElementById("emailField").classList.add("invalid");
+                isValid = false;
+            }
+
+            // Password validation (minimum 6 characters)
+            if (password.length < 6) {
+                document.getElementById("passwordError").style.display = "block";
+                document.getElementById("passField").classList.add("invalid");
+                isValid = false;
+            }
+
+            // Submit if valid
+            if (isValid) {
+                alert("Form submitted successfully!");
+                // document.getElementById("signupForm").submit(); // Uncomment to submit the form
+            }
         }
-       
+
+        function clearValidation() {
+            const errorMessages = document.querySelectorAll(".error-message");
+            errorMessages.forEach((message) => {
+                message.style.display = "none";
+            });
+
+            const inputFields = document.querySelectorAll(".input-field");
+            inputFields.forEach((field) => {
+                field.classList.remove("invalid");
+            });
+        }
     </script>
 </body>
 
